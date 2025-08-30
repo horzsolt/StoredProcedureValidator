@@ -128,6 +128,24 @@ namespace StoredProcedureValidator
             if (!Regex.IsMatch(source.TrimEnd(), finalInsertPattern, RegexOptions.IgnoreCase | RegexOptions.Singleline))
                 missing.Add("Missing or incorrect final INSERT INTO log statement");
 
+            string catchPattern = @"BEGIN\s+CATCH(.*?)END\s+CATCH";
+            string nullErrorPattern = @"INSERT\s+INTO\s+dbo\.ProcedureExecutionLog\s*\(.*?ErrorMessage.*?\)\s*VALUES\s*\(.*?NULL.*?\)";
+
+            var catchMatches = Regex.Matches(source, catchPattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+            foreach (Match catchMatch in catchMatches)
+            {
+                string catchBlock = catchMatch.Groups[1].Value;
+
+                bool hasNullErrorMessage = Regex.IsMatch(catchBlock, nullErrorPattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+                if (hasNullErrorMessage)
+                {
+                    missing.Add("ERROR: This procedure inserts NULL into ErrorMessage in the CATCH block.");
+                }
+            }
+
+
             return missing.Count == 0 ? ("OK", "All checks passed") : ("FAILURE", string.Join("; ", missing));
         }
 
