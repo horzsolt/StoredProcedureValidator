@@ -113,7 +113,8 @@ namespace StoredProcedureValidator
                     missing.Add("Missing COMMIT TRANSACTION");
                 if (!source.Contains("ROLLBACK TRANSACTION", StringComparison.OrdinalIgnoreCase))
                     missing.Add("Missing ROLLBACK TRANSACTION");
-            } else
+            }
+            else
             {
                 if (source.Contains("COMMIT TRANSACTION", StringComparison.OrdinalIgnoreCase))
                     missing.Add("Invalid extra COMMIT TRANSACTION");
@@ -154,5 +155,20 @@ namespace StoredProcedureValidator
         {
             this.Close();
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            TableCheckerForm tableCheckerForm = new TableCheckerForm();
+            tableCheckerForm.ShowDialog();
         }
+
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                this.Close();
+                e.Handled = true;
+            }
+        }
+    }
 }
