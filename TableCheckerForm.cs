@@ -6,7 +6,7 @@ namespace StoredProcedureValidator
     public partial class TableCheckerForm : Form
     {
 
-        private readonly string _connectionString;
+        private string _connectionString;
         private readonly string _logFilePath;
 
         private DataGridView dataGridView1 = null!;
@@ -131,12 +131,6 @@ namespace StoredProcedureValidator
         public TableCheckerForm()
         {
             InitializeComponent();
-            _connectionString =
-                $"Server={Environment.GetEnvironmentVariable("VIR_SQL_SERVER_NAME")};" +
-                "Database=qad;" +
-                $"User Id={Environment.GetEnvironmentVariable("VIR_SQL_USER")};" +
-                $"Password={Environment.GetEnvironmentVariable("VIR_SQL_PASSWORD")};" +
-                "Connection Timeout=500;Trust Server Certificate=true";
 
             _logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "stored_proc.log");
             InitializeGrid();
@@ -196,7 +190,6 @@ namespace StoredProcedureValidator
             );
         }
 
-
         private void DataGridView1_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
         {
             var grid = sender as DataGridView;
@@ -220,8 +213,23 @@ namespace StoredProcedureValidator
 
         private void btnRunCheck_Click(object sender, EventArgs e)
         {
+            _connectionString =
+                $"Server={Environment.GetEnvironmentVariable("VIR_SQL_SERVER_NAME")};" +
+                "Database=qad;" +
+                $"User Id={Environment.GetEnvironmentVariable("VIR_SQL_USER")};" +
+                $"Password={Environment.GetEnvironmentVariable("VIR_SQL_PASSWORD")};" +
+                "Connection Timeout=500;Trust Server Certificate=true";
             dataGridView1.Rows.Clear();
             File.WriteAllText(_logFilePath, string.Empty);
+
+            ListTablesAndViewsContainingPatterns();
+
+            _connectionString =
+                $"Server={Environment.GetEnvironmentVariable("VIR_SQL_SERVER_NAME")};" +
+                "Database=vir;" +
+                $"User Id={Environment.GetEnvironmentVariable("VIR_SQL_USER")};" +
+                $"Password={Environment.GetEnvironmentVariable("VIR_SQL_PASSWORD")};" +
+                "Connection Timeout=500;Trust Server Certificate=true";
 
             ListTablesAndViewsContainingPatterns();
         }
